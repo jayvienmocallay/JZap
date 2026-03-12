@@ -1,0 +1,87 @@
+# =============================================================================
+# JZap (ShieldProxy) — .gitignore
+# =============================================================================
+
+# ----- OS -----
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ----- IDE / Editor -----
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ----- Secrets & Certificates -----
+certs/*.pem
+certs/*.key
+certs/*.crt
+certs/*.csr
+certs/ca/
+certs/proxy/
+certs/agent/
+certs/control-plane/
+*.p12
+*.pfx
+.env
+.env.*
+!.env.example
+
+# ----- Rust -----
+proxy/rust/target/
+**/*.rs.bk
+
+# ----- Go -----
+agent/agent
+dns-module/dns-module
+vendor/
+
+# ----- Python -----
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+control-plane/.venv/
+control-plane/venv/
+
+# ----- Node / JavaScript -----
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ----- eBPF -----
+proxy/ebpf/src/*.o
+proxy/ebpf/src/*.ll
+
+# ----- Docker -----
+docker-compose.override.yml
+
+# ----- Database -----
+db/data/
+pgdata/
+
+# ----- Redis -----
+redis/data/
+*.rdb
+*.aof
+
+# ----- Monitoring -----
+monitoring/grafana/data/
+monitoring/prometheus/data/
+
+# ----- Logs -----
+*.log
+logs/
+
+# ----- Build artifacts -----
+*.o
+*.so
+*.dylib
+*.exe
