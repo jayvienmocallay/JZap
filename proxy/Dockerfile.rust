@@ -1,0 +1,124 @@
+# =============================================================================
+# JZap Proxy — Rust Sidecar (with eBPF support)
+# =============================================================================
+# Multi-stage build for the Rust sidecar that handles eBPF loading,
+# fingerprinting, rate-limiting, and anomaly scoring alongside OpenResty.
+# -----------------------------------------------------------------------------
+
+# --------------- Stage 1: Builder -------------------------------------------
+FROM rust:1.77-bookworm AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    pkg-config \
+    libssl-dev \
+    protobuf-compiler \
+    cmake \
+    clang \
+    llvm \
+    libbpf-dev \
+    linux-headers-generic \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+
+# Copy manifests first for dependency caching
+COPY Cargo.toml Cargo.lock ./
+
+# Create stub source files for dependency caching
+RUN mkdir -p src crates/shared/src crates/ebpf-loader/src crates/fingerprint/src crates/ratelimit-engine/src && \
+    echo "fn main() {}" > src/main.rs && \
+    echo "" > crates/shared/src/lib.rs && \
+    echo "" > crates/ebpf-loader/src/lib.rs && \
+    echo "" > crates/fingerprint/src/lib.rs && \
+    echo "" > crates/ratelimit-engine/src/lib.rs
+
+# Copy all workspace crate Cargo.toml files
+COPY crates/shared/Cargo.toml crates/shared/Cargo.toml
+COPY crates/ebpf-loader/Cargo.toml crates/ebpf-loader/Cargo.toml
+COPY crates/fingerprint/Cargo.toml crates/fingerprint/Cargo.toml
+COPY crates/ratelimit-engine/Cargo.toml crates/ratelimit-engine/Cargo.toml
+
+# Build dependencies only (cache layer)
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/build/target \
+    cargo build --release 2>/dev/null || true
+
+# Now copy real source code
+COPY src/ src/
+COPY crates/ crates/
+
+# Touch source files to invalidate the cache for the actual build
+RUN touch src/main.rs crates/*/src/*.rs
+
+# Build the real binary
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/build/target \
+    cargo build --release && \
+    cp target/release/jzap-sidecar /usr/local/bin/jzap-sidecar
+
+# --------------- Stage 2: eBPF Builder (compile XDP programs) ---------------
+FROM debian:bookworm AS ebpf-builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    clang \
+    llvm \
+    libbpf-dev \
+    linux-headers-generic \
+    make \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /ebpf
+
+# Copy eBPF source and Makefile
+COPY ../ebpf/ .
+
+# Build all eBPF programs
+RUN make all
+
+# --------------- Stage 3: Runtime -------------------------------------------
+FROM debian:bookworm-slim AS runtime
+
+LABEL maintainer="JZap Team"
+LABEL description="Rust sidecar for eBPF/XDP loading, proxy fingerprinting and scoring"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libssl3 \
+    ca-certificates \
+    libbpf1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create directories
+RUN mkdir -p /var/run/jzap && \
+    mkdir -p /opt/jzap/ebpf && \
+    chown nobody:nogroup /var/run/jzap
+
+# Copy the Rust sidecar binary
+COPY --from=builder /usr/local/bin/jzap-sidecar /usr/local/bin/jzap-sidecar
+
+# Copy compiled eBPF programs
+COPY --from=ebpf-builder /ebpf/*.o /opt/jzap/ebpf/
+
+# The sidecar needs CAP_BPF + CAP_NET_ADMIN to load XDP programs.
+# In production, use --cap-add in docker-compose instead of running as root.
+# USER nobody
+
+EXPOSE 9090
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
+    CMD test -S /var/run/jzap/jzap.sock || exit 1
+
+# Environment defaults
+ENV JZAP_REDIS_HOST=redis \
+    JZAP_REDIS_PORT=6379 \
+    JZAP_CONTROL_PLANE_URL=http://control-plane:8080 \
+    JZAP_EBPF_PATH=/opt/jzap/ebpf \
+    JZAP_SOCKET_PATH=/var/run/jzap/jzap.sock \
+    JZAP_XDP_INTERFACE=eth0 \
+    JZAP_METRICS_PORT=9090 \
+    JZAP_BLOCKLIST_SYNC_INTERVAL=30 \
+    JZAP_METRICS_INTERVAL=5 \
+    JZAP_BASELINE_SIGMA=3.0 \
+    JZAP_BASELINE_WINDOW=60 \
+    JZAP_TRAFFIC_LOG=true
+
+CMD ["/usr/local/bin/jzap-sidecar"]
