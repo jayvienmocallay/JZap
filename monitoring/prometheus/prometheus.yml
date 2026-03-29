@@ -1,0 +1,91 @@
+# =============================================================================
+# JZap Prometheus Configuration
+# =============================================================================
+
+global:
+  # Scrape all targets every 10 seconds.
+  # Fast enough to detect attacks in near-real-time, without overwhelming
+  # services with metrics requests.
+  scrape_interval: 10s
+
+  # Evaluate alerting rules every 10 seconds.
+  evaluation_interval: 10s
+
+  # Global labels applied to all time series.
+  external_labels:
+    cluster: "jzap"
+    environment: "production"
+
+# =============================================================================
+# Scrape Targets
+# =============================================================================
+scrape_configs:
+
+  # --- JZap Proxy Node ---
+  # The main reverse proxy that handles all incoming traffic.
+  # Exposes metrics on port 8443 (HTTPS) at /metrics.
+  - job_name: "jzap-proxy"
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true  # Self-signed mTLS certs in dev
+    static_configs:
+      - targets:
+          - "jzap-proxy:8443"
+        labels:
+          service: "proxy"
+
+  # --- JZap Control Plane ---
+  # The FastAPI management API and dashboard backend.
+  # Exposes metrics on port 8000 at /metrics.
+  - job_name: "jzap-control-plane"
+    static_configs:
+      - targets:
+          - "jzap-control-plane:8000"
+        labels:
+          service: "control-plane"
+
+  # --- JZap Host Agent ---
+  # The eBPF-based host agent that collects kernel-level traffic metrics.
+  # Exposes metrics on port 9091 at /metrics.
+  - job_name: "jzap-agent"
+    static_configs:
+      - targets:
+          - "jzap-agent:9091"
+        labels:
+          service: "agent"
+
+  # --- JZap DNS Module ---
+  # The CoreDNS-based DNS protection module.
+  # Exposes metrics on port 9092 at /metrics.
+  - job_name: "jzap-dns"
+    static_configs:
+      - targets:
+          - "jzap-dns:9092"
+        labels:
+          service: "dns"
+
+  # --- JZap Rust Sidecar ---
+  # High-performance packet analysis sidecar.
+  # Exposes metrics on port 9090 at /metrics.
+  - job_name: "jzap-rust-sidecar"
+    static_configs:
+      - targets:
+          - "jzap-rust-sidecar:9090"
+        labels:
+          service: "rust-sidecar"
+
+  # --- Redis Exporter ---
+  # Exports Redis metrics (memory, connections, command stats).
+  # Uses the redis_exporter sidecar container.
+  - job_name: "redis"
+    static_configs:
+      - targets:
+          - "redis-exporter:9121"
+        labels:
+          service: "redis"
+
+  # --- Prometheus self-monitoring ---
+  - job_name: "prometheus"
+    static_configs:
+      - targets:
+          - "localhost:9090"
