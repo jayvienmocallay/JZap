@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Security Check</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f5f6f7;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .challenge-container {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 2.5rem 2rem;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .shield-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 1.5rem;
+      display: block;
+    }
+
+    .shield-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #222;
+    }
+
+    #jzap-status {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    /* CSS-only spinner */
+    .spinner {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto 1.25rem;
+      border: 3px solid #e0e0e0;
+      border-top-color: #4a90d9;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    #jzap-progress {
+      font-size: 0.8rem;
+      color: #999;
+      margin-top: 1rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .footnote {
+      font-size: 0.75rem;
+      color: #aaa;
+      margin-top: 1.5rem;
+      line-height: 1.4;
+    }
+
+    /* Accessibility: reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .spinner {
+        animation-duration: 3s;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="challenge-container" id="jzap-challenge"
+       data-challenge="{{CHALLENGE}}"
+       data-difficulty="{{DIFFICULTY}}"
+       data-return-url="{{RETURN_URL}}"
+       data-cookie-name="jzap_pow"
+       data-cookie-ttl="3600">
+
+    <!-- Shield icon (inline SVG, no external deps) -->
+    <div class="shield-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <polyline points="9 12 11 14 15 10" stroke="#4a90d9"/>
+      </svg>
+    </div>
+
+    <h1>Verifying your connection</h1>
+    <p id="jzap-status">
+      This security check confirms you are a real visitor. It should complete automatically in a few seconds.
+    </p>
+
+    <div class="spinner" id="jzap-spinner"></div>
+
+    <div id="jzap-progress"></div>
+
+    <p class="footnote">
+      This process is automatic. Your browser is performing a brief verification task.
+      If this page does not redirect shortly, please try refreshing.
+    </p>
+  </div>
+
+  <!--
+    Challenge parameters can also be provided as inline JSON:
+    <script id="jzap-params" type="application/json">
+      {"challenge": "abc123", "difficulty": 4, "returnUrl": "/", "cookieName": "jzap_pow", "cookieTTL": 3600}
+    </script>
+  -->
+
+  <script src="pow.js"></script>
+</body>
+</html>
