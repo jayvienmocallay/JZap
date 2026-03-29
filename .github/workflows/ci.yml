@@ -1,0 +1,231 @@
+# =============================================================================
+# JZap (ShieldProxy) — CI Pipeline
+# Lint, build, and test all components on every push and PR
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  CARGO_TERM_COLOR: always
+  GO_VERSION: "1.22"
+  PYTHON_VERSION: "3.12"
+  RUST_VERSION: "1.77"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Rust — Proxy Sidecar (eBPF loader, fingerprint, rate limit engine)
+  # ---------------------------------------------------------------------------
+  rust:
+    name: Rust — Lint, Build, Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: proxy/rust
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          components: clippy, rustfmt
+
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            proxy/rust/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('proxy/rust/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Clippy lint
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Test
+        run: cargo test --all
+
+  # ---------------------------------------------------------------------------
+  # Go — Host Agent
+  # ---------------------------------------------------------------------------
+  go-agent:
+    name: Go Agent — Lint, Build, Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: agent
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: agent/go.sum
+
+      - name: Go vet
+        run: go vet ./...
+
+      - name: Build
+        run: CGO_ENABLED=0 go build -o agent ./cmd/agent
+
+      - name: Test
+        run: go test -v -race ./...
+
+  # ---------------------------------------------------------------------------
+  # Go — DNS Module
+  # ---------------------------------------------------------------------------
+  go-dns:
+    name: Go DNS Module — Lint, Build, Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dns-module
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: dns-module/go.sum
+
+      - name: Go vet
+        run: go vet ./...
+
+      - name: Build
+        run: CGO_ENABLED=0 go build -o dns-module ./cmd/
+
+      - name: Test
+        run: go test -v -race ./...
+
+  # ---------------------------------------------------------------------------
+  # Python — Control Plane API
+  # ---------------------------------------------------------------------------
+  python:
+    name: Python Control Plane — Lint, Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: control-plane
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: control-plane/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff pytest pytest-asyncio
+
+      - name: Ruff lint
+        run: ruff check app/
+
+      - name: Ruff format check
+        run: ruff format --check app/
+
+      - name: Test
+        run: pytest -v
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: jzap_test
+          POSTGRES_USER: jzap
+          POSTGRES_PASSWORD: testpass
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          SECRET_KEY: test-secret-key
+          API_KEY_SALT: test-salt
+
+  # ---------------------------------------------------------------------------
+  # Docker — Verify all images build
+  # ---------------------------------------------------------------------------
+  docker:
+    name: Docker — Build All Images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Proxy image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./proxy
+          file: ./proxy/Dockerfile
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build Rust Sidecar image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./proxy
+          file: ./proxy/Dockerfile.rust
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build Agent image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./agent
+          file: ./agent/Dockerfile
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build Control Plane image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./control-plane
+          file: ./control-plane/Dockerfile
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build DNS Module image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./dns-module
+          file: ./dns-module/Dockerfile
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ---------------------------------------------------------------------------
+  # eBPF — Compile check (requires Linux headers)
+  # ---------------------------------------------------------------------------
+  ebpf:
+    name: eBPF — Compile Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install eBPF build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang llvm libbpf-dev linux-headers-$(uname -r)
+
+      - name: Compile eBPF programs
+        run: make -C proxy/ebpf all
