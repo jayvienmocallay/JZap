@@ -1,0 +1,66 @@
+[package]
+name = "jzap-sidecar"
+version.workspace = true
+edition.workspace = true
+description = "JZap Rust sidecar orchestrator binary"
+
+[workspace]
+resolver = "2"
+members = [
+    "crates/ebpf-loader",
+    "crates/fingerprint",
+    "crates/ratelimit-engine",
+    "crates/shared",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/jzap/jzap"
+description = "JZap (ShieldProxy) — Rust components for DDoS protection proxy"
+
+[workspace.dependencies]
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+anyhow = "1"
+thiserror = "2"
+redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
+tonic = "0.12"
+prost = "0.13"
+md5 = "0.7"
+hex = "0.4"
+dashmap = "6"
+prometheus = "0.13"
+hyper = { version = "1", features = ["full"] }
+http-body-util = "0.1"
+hyper-util = { version = "0.1", features = ["tokio"] }
+bytes = "1"
+aya = "0.13"
+aya-log = "0.2"
+reqwest = { version = "0.12", features = ["json"] }
+
+[[bin]]
+name = "jzap-sidecar"
+path = "src/main.rs"
+
+[dependencies]
+jzap-shared = { path = "crates/shared" }
+jzap-ebpf-loader = { path = "crates/ebpf-loader" }
+jzap-fingerprint = { path = "crates/fingerprint" }
+jzap-ratelimit-engine = { path = "crates/ratelimit-engine" }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+prometheus = { workspace = true }
+hyper = { workspace = true }
+http-body-util = { workspace = true }
+hyper-util = { workspace = true }
+bytes = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+reqwest = { workspace = true }

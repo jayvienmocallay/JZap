@@ -1,0 +1,14 @@
+[package]
+name = "jzap-fingerprint"
+version.workspace = true
+edition.workspace = true
+description = "TLS/JA3 fingerprint extraction and bot-signature matching for JZap"
+
+[dependencies]
+jzap-shared = { path = "../shared" }
+md5 = { workspace = true }
+hex = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+dashmap = { workspace = true }

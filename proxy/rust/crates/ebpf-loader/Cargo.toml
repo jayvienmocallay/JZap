@@ -1,0 +1,16 @@
+[package]
+name = "jzap-ebpf-loader"
+version.workspace = true
+edition.workspace = true
+description = "eBPF XDP program loader and manager for JZap"
+
+[dependencies]
+jzap-shared = { path = "../shared" }
+tokio = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+serde = { workspace = true }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+aya = { workspace = true }
+aya-log = { workspace = true }

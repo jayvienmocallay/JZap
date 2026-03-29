@@ -1,0 +1,11 @@
+[package]
+name = "jzap-shared"
+version.workspace = true
+edition.workspace = true
+description = "Shared types, config, and error handling for JZap Rust components"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }

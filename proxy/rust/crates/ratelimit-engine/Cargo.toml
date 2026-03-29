@@ -1,0 +1,13 @@
+[package]
+name = "jzap-ratelimit-engine"
+version.workspace = true
+edition.workspace = true
+description = "Sliding-window rate limiter with optional Redis backing for JZap"
+
+[dependencies]
+jzap-shared = { path = "../shared" }
+tokio = { workspace = true }
+redis = { workspace = true }
+dashmap = { workspace = true }
+tracing = { workspace = true }
+prometheus = { workspace = true }
