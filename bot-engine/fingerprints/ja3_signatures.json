@@ -1,0 +1,92 @@
+[
+  {
+    "ja3_hash": "e7d705a3286e19ea42f587b344ee6865",
+    "name": "Python requests 2.x",
+    "category": "bot",
+    "threat_level": "medium"
+  },
+  {
+    "ja3_hash": "b32309a26951912be7dba376398abc3b",
+    "name": "Go net/http (default)",
+    "category": "bot",
+    "threat_level": "medium"
+  },
+  {
+    "ja3_hash": "3b5074b1b5d032e5620f69f9f700ff0e",
+    "name": "curl (OpenSSL)",
+    "category": "tool",
+    "threat_level": "low"
+  },
+  {
+    "ja3_hash": "456523fc94726331a4d5a2e1d40b2cd7",
+    "name": "Nmap NSE scripts",
+    "category": "scanner",
+    "threat_level": "high"
+  },
+  {
+    "ja3_hash": "d4e5b6071d373ea03e51c1cd8e0245bc",
+    "name": "Masscan",
+    "category": "scanner",
+    "threat_level": "high"
+  },
+  {
+    "ja3_hash": "19e29534fd49dd27d09234e639c4057e",
+    "name": "ZGrab 2.0",
+    "category": "scanner",
+    "threat_level": "high"
+  },
+  {
+    "ja3_hash": "a0e9f5d64349fb13191bc781f81f42e1",
+    "name": "Scrapy (Python)",
+    "category": "crawler",
+    "threat_level": "medium"
+  },
+  {
+    "ja3_hash": "8a6b8bfe88af0682e88e10c0b9f967e2",
+    "name": "Node.js axios/fetch (undici)",
+    "category": "bot",
+    "threat_level": "medium"
+  },
+  {
+    "ja3_hash": "c12f54a3f91dc7bafd92b1ece2365f6e",
+    "name": "Mirai botnet variant",
+    "category": "bot",
+    "threat_level": "high"
+  },
+  {
+    "ja3_hash": "f09e1a2f4d7c8b2e1d3c5a6b7e8f9012",
+    "name": "Gafgyt/BASHLITE botnet",
+    "category": "bot",
+    "threat_level": "high"
+  },
+  {
+    "ja3_hash": "6734f37431670b3ab4292b8f60f29984",
+    "name": "Nikto web scanner",
+    "category": "scanner",
+    "threat_level": "high"
+  },
+  {
+    "ja3_hash": "9e10692f1b7f78228b2d4e3c6d5a7890",
+    "name": "SQLMap",
+    "category": "scanner",
+    "threat_level": "high"
+  },
+  {
+    "ja3_hash": "535aca3d99fc247509795f7f4341b6f2",
+    "name": "Java HttpURLConnection",
+    "category": "bot",
+    "threat_level": "low"
+  },
+  {
+    "ja3_hash": "4d7a28d6f2a1c3e5b8d9f0a2c4e6b8d0",
+    "name": "PHP cURL (default)",
+    "category": "bot",
+    "threat_level": "low"
+  },
+  {
+    "ja3_hash": "2b2c48a1f8a0e72de83cdabc5e7a93e1",
+    "name": "wget (GnuTLS)",
+    "category": "tool",
+    "threat_level": "low"
+  }
+]
