@@ -1,7 +1,7 @@
 <pre align="center">
-	 ██╗███████╗ █████╗ ██████╗
-	 ██║╚══███╔╝██╔══██╗██╔══██╗
-	 ██║  ███╔╝ ███████║██████╔╝
+	██╗███████╗ █████╗ ██████╗
+	██║╚══███╔╝██╔══██╗██╔══██╗
+	██║  ███╔╝ ███████║██████╔╝
 ██   ██║ ███╔╝  ██╔══██║██╔═══╝
 ╚█████╔╝███████╗██║  ██║██║
  ╚════╝ ╚══════╝╚═╝  ╚═╝╚═╝
@@ -10,8 +10,6 @@
 <p align="center"><strong>Hybrid DDoS Defense Platform</strong></p>
 
 > Hybrid DDoS defense platform with eBPF/XDP filtering, OpenResty L7 controls, Rust sidecar engines, and a FastAPI control plane.
-
-*This is a quick overview. Architecture and implementation details are documented in project source structure and audit notes.*
 
 ## What It Does
 
