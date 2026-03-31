@@ -93,6 +93,7 @@ logs/
 # ----- Local Audit / Progress Docs -----
 audit/
 docs/progress/
+TASKS.md
 
 # ----- Build artifacts -----
 *.o
