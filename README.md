@@ -1,13 +1,10 @@
-<div align="center"><pre>
-  ██╗███████╗ █████╗ ██████╗
-  ██║╚══███╔╝██╔══██╗██╔══██╗
-  ██║  ███╔╝ ███████║██████╔╝
-  ██   ██║ ███╔╝  ██╔══██║██╔═══╝
-  ╚█████╔╝███████╗██║  ██║██║
-   ╚════╝ ╚══════╝╚═╝  ╚═╝╚═╝
-</pre></div>
+<div align="center">
 
-<p align="center"><strong>Hybrid DDoS Defense Platform</strong></p>
+# JZAP
+
+### Hybrid DDoS Defense Platform
+
+</div>
 
 > Hybrid DDoS defense platform with eBPF/XDP filtering, OpenResty L7 controls, Rust sidecar engines, and a FastAPI control plane.
 
