@@ -93,12 +93,12 @@ services:
       - POSTGRES_PORT=${POSTGRES_PORT:-5432}
       - POSTGRES_DB=${POSTGRES_DB:-jzap}
       - POSTGRES_USER=${POSTGRES_USER:-jzap}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?ERROR: POSTGRES_PASSWORD not set}
       - REDIS_HOST=${REDIS_HOST:-redis}
       - REDIS_PORT=${REDIS_PORT:-6379}
       - REDIS_PASSWORD=${REDIS_PASSWORD:-}
-      - SECRET_KEY=${CONTROL_PLANE_SECRET_KEY:-devkey-change-in-production}
-      - API_KEY_SALT=${CONTROL_PLANE_API_KEY_SALT:-devsalt-change-in-production}
+      - SECRET_KEY=${CONTROL_PLANE_SECRET_KEY:?ERROR: CONTROL_PLANE_SECRET_KEY not set}
+      - API_KEY_SALT=${CONTROL_PLANE_API_KEY_SALT:?ERROR: CONTROL_PLANE_API_KEY_SALT not set}
     depends_on:
       timescaledb:
         condition: service_healthy
@@ -187,7 +187,7 @@ services:
     environment:
       - POSTGRES_DB=${POSTGRES_DB:-jzap}
       - POSTGRES_USER=${POSTGRES_USER:-jzap}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?ERROR: POSTGRES_PASSWORD not set}
     networks:
       - jzap-internal
     healthcheck:

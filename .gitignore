@@ -25,8 +25,18 @@ certs/agent/
 certs/control-plane/
 *.p12
 *.pfx
+*.pk8
+*.pkcs8
+*.keystore
+*.jks
+*.token
+*.apikey
+.credentials
+credentials.json
 .env
 .env.*
+.env.local
+.env.*.local
 !.env.example
 
 # ----- Rust -----
@@ -79,6 +89,10 @@ monitoring/prometheus/data/
 # ----- Logs -----
 *.log
 logs/
+
+# ----- Local Audit / Progress Docs -----
+audit/
+docs/progress/
 
 # ----- Build artifacts -----
 *.o
