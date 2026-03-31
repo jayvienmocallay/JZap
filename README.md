@@ -1,19 +1,11 @@
-```ansi
-[1;96m     ██╗[1;94m███████╗[1;96m █████╗ [1;94m██████╗ [1;96m    ██████╗ [1;94m█████╗ [0m
-[1;94m     ██║[1;96m╚══███╔╝[1;94m██╔══██╗[1;96m██╔══██╗[1;94m    ██╔══██╗[1;96m██╔══██╗[0m
-[1;96m     ██║[1;94m  ███╔╝ [1;96m███████║[1;94m██████╔╝[1;96m    ██████╔╝[1;94m███████║[0m
-[1;94m██   ██║[1;96m ███╔╝   [1;94m██╔══██║[1;96m██╔═══╝ [1;94m    ██╔═══╝ [1;96m██╔══██║[0m
-[1;96m╚█████╔╝[1;94m███████╗[1;96m██║  ██║[1;94m██║     [1;96m    ██║     [1;94m██║  ██║[0m
-[1;94m ╚════╝ [1;96m╚══════╝[1;94m╚═╝  ╚═╝[1;96m╚═╝     [1;94m    ╚═╝     [1;96m╚═╝  ╚═╝[0m
+```ruby
+	██╗███████╗ █████╗ ██████╗     ██████╗ █████╗
+	██║╚══███╔╝██╔══██╗██╔══██╗    ██╔══██╗██╔══██╗
+	██║  ███╔╝ ███████║██████╔╝    ██████╔╝███████║
+██   ██║ ███╔╝  ██╔══██║██╔═══╝     ██╔═══╝ ██╔══██║
+╚█████╔╝███████╗██║  ██║██║         ██║     ██║  ██║
+ ╚════╝ ╚══════╝╚═╝  ╚═╝╚═╝         ╚═╝     ╚═╝  ╚═╝
 ```
-
-[![Cybersecurity Projects](https://img.shields.io/badge/Cybersecurity--Projects-Project%20%232-red?style=flat&logo=github)](https://github.com)
-[![Rust](https://img.shields.io/badge/Rust-stable-000000?style=flat&logo=rust)](https://www.rust-lang.org)
-[![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat&logo=go&logoColor=white)](https://go.dev)
-[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org)
-[![License: AGPLv3](https://img.shields.io/badge/License-AGPL_v3-purple.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=flat&logo=docker)](https://www.docker.com)
-[![MITRE ATT&CK](https://img.shields.io/badge/MITRE-ATT%26CK-red?style=flat)](https://attack.mitre.org/)
 
 > Hybrid DDoS defense platform with eBPF/XDP filtering, OpenResty L7 controls, Rust sidecar engines, and a FastAPI control plane.
 
