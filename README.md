@@ -1,81 +1,69 @@
-<p align="center">
-  <img src="assets/readme/jzap-neon-banner.svg" alt="JZap neon lightning banner" width="100%" />
-</p>
+```ansi
+[1;96m ██████╗[1;94m██████╗[1;97m     [1;96m██████╗ [1;94m███████╗ [1;96m█████╗  [1;94m██████╗ [1;96m██████╗ [1;94m███╗   ██╗[0m
+[1;94m██╔════╝[1;96m╚════██╗[1;97m    [1;94m██╔══██╗[1;96m██╔════╝[1;94m██╔══██╗[1;96m██╔════╝[1;94m██╔═══██╗[1;96m████╗  ██║[0m
+[1;96m██║     [1;94m █████╔╝[1;97m    [1;96m██████╔╝[1;94m█████╗  [1;96m███████║[1;94m██║     [1;96m██║   ██║[1;94m██╔██╗ ██║[0m
+[1;94m██║     [1;96m██╔═══╝ [1;97m    [1;94m██╔══██╗[1;96m██╔══╝  [1;94m██╔══██║[1;96m██║     [1;94m██║   ██║[1;96m██║╚██╗██║[0m
+[1;96m╚██████╗[1;94m███████╗[1;97m    [1;96m██████╔╝[1;94m███████╗[1;96m██║  ██║[1;94m╚██████╗[1;96m╚██████╔╝[1;94m██║ ╚████║[0m
+[1;94m ╚═════╝[1;96m╚══════╝[1;97m    [1;94m╚═════╝ [1;96m╚══════╝[1;94m╚═╝  ╚═╝ [1;96m╚═════╝ [1;94m╚═════╝ [1;96m╚═╝  ╚═══╝[0m
+```
 
-<p align="center">
-  <strong>JZap</strong> is a hybrid DDoS defense platform combining eBPF/XDP filtering, a Rust sidecar engine, OpenResty Lua controls, and a FastAPI control plane.
-</p>
+[![Cybersecurity Projects](https://img.shields.io/badge/Cybersecurity--Projects-Project%20%232-red?style=flat&logo=github)](https://github.com)
+[![Rust](https://img.shields.io/badge/Rust-stable-000000?style=flat&logo=rust)](https://www.rust-lang.org)
+[![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat&logo=go&logoColor=white)](https://go.dev)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org)
+[![License: AGPLv3](https://img.shields.io/badge/License-AGPL_v3-purple.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=flat&logo=docker)](https://www.docker.com)
+[![MITRE ATT&CK](https://img.shields.io/badge/MITRE-ATT%26CK-red?style=flat)](https://attack.mitre.org/)
 
-<p align="center">
-  <img alt="License" src="https://img.shields.io/badge/license-AGPL--3.0-1d9bf0?style=for-the-badge" />
-  <img alt="Platform" src="https://img.shields.io/badge/platform-Linux%20%7C%20Docker-00d084?style=for-the-badge" />
-  <img alt="Status" src="https://img.shields.io/badge/status-active%20development-7c83fd?style=for-the-badge" />
-</p>
+> Hybrid DDoS defense platform with eBPF/XDP filtering, OpenResty L7 controls, Rust sidecar engines, and a FastAPI control plane.
+
+*This is a quick overview. Architecture and implementation details are documented in project source structure and audit notes.*
 
 ## What It Does
 
-- Filters high-volume L3/L4 attack traffic at kernel level using eBPF/XDP.
-- Applies L7 controls in OpenResty (Lua) for challenge and request inspection flows.
-- Syncs blocklists and policies through a central FastAPI control plane.
-- Uses Redis for fast state and pub/sub propagation.
-- Tracks observability with Prometheus + Grafana dashboards.
-
-## Architecture
-
-| Component | Responsibility |
-|---|---|
-| `proxy/ebpf` | XDP programs for blocklist, rate limiting, amplification protection |
-| `proxy/rust` | eBPF loader, telemetry, baseline and sync engines |
-| `proxy/nginx` + `proxy/lua` | OpenResty proxy and L7 policy hooks |
-| `control-plane` | API, tenant/rule management, DB-backed policy control |
-| `agent` | Host-level sync/fallback and firewall orchestration |
-| `dns-module` | DNS protections and response-rate limiting |
-| `monitoring` | Prometheus and Grafana provisioning |
+- eBPF/XDP packet filtering for L3/L4 threat mitigation (blocklist, rate limiting, amplification controls)
+- OpenResty Lua request processing for L7 policy enforcement and challenge workflows
+- Real-time rule and blocklist synchronization between control plane and edge components
+- Redis-backed low-latency state and pub/sub propagation for distributed policy updates
+- TimescaleDB-backed persistence for control-plane data and long-range analysis
+- Prometheus and Grafana observability for traffic, health, and defense metrics
 
 ## Quick Start
 
 ```bash
 cp .env.example .env
-# Set all required secret values in .env before starting
-
+# Set required secret values in .env
 docker compose up -d --build
 ```
 
-Check core services:
+Visit:
 
-- Control plane health: `http://localhost:8000/api/v1/health`
-- Proxy health: `http://localhost/health`
-- Prometheus: `http://localhost:9090`
-- Grafana: `http://localhost:3000`
+- `http://localhost:8000/api/v1/health` (Control Plane)
+- `http://localhost/health` (Proxy)
+- `http://localhost:9090` (Prometheus)
+- `http://localhost:3000` (Grafana)
 
-## Security Notes Before Public Deployment
+## Stack
 
-- Never commit real `.env` files, certificates, keys, or runtime data.
-- Generate certificates per environment using scripts in `certs/`.
-- Rotate DB, Redis, and control-plane secrets before production exposure.
-- Keep operational secret bundles in a separate private repository.
+**Backend:** FastAPI, SQLAlchemy, Alembic, Redis, TimescaleDB
 
-## Repository Layout
+**Data Plane:** eBPF/XDP (C), OpenResty/Lua, Rust sidecar
 
-```text
-agent/              # host daemon
-control-plane/      # FastAPI API and DB layer
-proxy/              # OpenResty, Lua, Rust sidecar, eBPF programs
-dns-module/         # DNS defense module
-db/                 # schema and seed
-audit/              # internal audit notes (ignored from push)
-docs/progress/      # local progress logs (ignored from push)
-```
+**Agent/Infra:** Go agent, CoreDNS plugin module, Docker Compose
 
-## Development Stack
+## Learn
 
-- Rust (workspace crates + sidecar)
-- Go (agent + DNS module)
-- Python (FastAPI + Alembic)
-- Lua (OpenResty)
-- C (eBPF programs)
-- Docker Compose for local orchestration
+This project includes practical implementation references in-source and through audit history.
+
+| Module | Topic |
+|--------|-------|
+| `proxy/ebpf` | Kernel-level filtering and mitigation logic |
+| `proxy/rust` | eBPF loading, sync engine, metrics, baseline logic |
+| `proxy/lua` | L7 request handling and policy hooks |
+| `control-plane/app` | API routes, models, schemas, and orchestration |
+| `agent/internal` | Host enforcement, sync, telemetry, fallback behavior |
+
 
 ## License
 
-AGPL-3.0
+AGPL 3.0
