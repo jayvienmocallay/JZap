@@ -146,6 +146,7 @@ jobs:
       - name: Test
         run: pytest -v
         env:
+          # Test-only credentials for CI execution. Do not reuse in production.
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
           POSTGRES_DB: jzap_test

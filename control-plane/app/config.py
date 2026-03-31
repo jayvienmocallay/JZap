@@ -6,6 +6,7 @@ from functools import lru_cache
 from typing import Optional
 
 from pydantic import Field
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -17,7 +18,7 @@ class Settings(BaseSettings):
     postgres_port: int = Field(default=5432)
     postgres_db: str = Field(default="jzap")
     postgres_user: str = Field(default="jzap")
-    postgres_password: str = Field(default="changeme")
+    postgres_password: str = Field(default="")
 
     # ── Redis ───────────────────────────────────────────────────────────
     redis_host: str = Field(default="redis")
@@ -25,14 +26,43 @@ class Settings(BaseSettings):
     redis_password: Optional[str] = Field(default=None)
 
     # ── Security ────────────────────────────────────────────────────────
-    secret_key: str = Field(default="CHANGE-ME-IN-PRODUCTION")
-    api_key_salt: str = Field(default="jzap-api-key-salt")
+    secret_key: str = Field(default="")
+    api_key_salt: str = Field(default="")
 
     # ── CORS ────────────────────────────────────────────────────────────
     cors_origins: list[str] = Field(default=["*"])
 
     # ── Debug ───────────────────────────────────────────────────────────
     debug: bool = Field(default=False)
+
+    @field_validator("postgres_password", "secret_key", "api_key_salt")
+    @classmethod
+    def validate_required_secrets(cls, value: str, info):
+        """Fail fast when required secrets are missing or placeholder values."""
+        normalized = (value or "").strip()
+        placeholder_markers = (
+            "changeme",
+            "change-me",
+            "change_me",
+            "devkey",
+            "devsalt",
+            "jzap-api-key-salt",
+            "generate_random",
+            "in-production",
+        )
+
+        if not normalized:
+            raise ValueError(
+                f"{info.field_name} must be set via environment variable"
+            )
+
+        lowered = normalized.lower()
+        if any(marker in lowered for marker in placeholder_markers):
+            raise ValueError(
+                f"{info.field_name} must not use placeholder/default values"
+            )
+
+        return normalized
 
     # ── Derived properties ──────────────────────────────────────────────
     @property
