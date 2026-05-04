@@ -17,6 +17,7 @@ from app.api.routes.health import router as health_router
 from app.api.routes.rules import router as rules_router
 from app.api.routes.tenants import router as tenants_router
 from app.api.routes.blocklist import router as blocklist_router
+from app.api.routes.config import router as config_router
 
 
 # ── Lifespan ────────────────────────────────────────────────────────────
@@ -83,3 +84,4 @@ app.include_router(health_router, prefix="/api/v1")
 app.include_router(rules_router, prefix="/api/v1")
 app.include_router(tenants_router, prefix="/api/v1")
 app.include_router(blocklist_router, prefix="/api/v1")
+app.include_router(config_router, prefix="/api/v1")
