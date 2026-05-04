@@ -6,7 +6,7 @@ import enum
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import BigInteger, DateTime, Enum, Integer, String
+from sqlalchemy import BigInteger, DateTime, Enum, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -20,6 +20,7 @@ class BlocklistReason(str, enum.Enum):
     auto_ratelimit = "auto_ratelimit"
     threat_intel = "threat_intel"
     geo_block = "geo_block"
+    allowlist = "allowlist"
 
 
 class BlocklistEntry(Base):
@@ -29,7 +30,10 @@ class BlocklistEntry(Base):
         BigInteger, primary_key=True, autoincrement=True
     )
     tenant_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     ip_address: Mapped[str] = mapped_column(
         String(45), nullable=False, index=True
