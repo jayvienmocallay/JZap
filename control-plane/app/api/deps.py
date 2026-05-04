@@ -5,10 +5,13 @@ from __future__ import annotations
 from typing import AsyncGenerator
 
 from fastapi import Depends, Header, HTTPException, Request, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
 from app.db.session import async_session_factory
+from app.models.tenant import Tenant
+from app.services.security import hash_api_key
 
 
 # ── Database session ────────────────────────────────────────────────────
@@ -39,15 +42,27 @@ def get_current_settings() -> Settings:
 async def verify_api_key(
     x_api_key: str = Header(..., alias="X-API-Key"),
     settings: Settings = Depends(get_current_settings),
+    db: AsyncSession = Depends(get_db),
 ) -> str:
     """Validate the incoming API key.
 
-    Currently accepts the raw secret_key for bootstrapping.
-    TODO (Phase 6): look up hashed key per-tenant in the database.
+    The configured `secret_key` remains an admin bootstrap key. Tenant API
+    keys are stored hashed and scoped in later phases.
     """
-    if x_api_key != settings.secret_key:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Invalid or missing API key",
+    if x_api_key == settings.secret_key:
+        return "bootstrap"
+
+    api_key_hash = hash_api_key(x_api_key)
+    result = await db.execute(
+        select(Tenant.id).where(
+            Tenant.api_key_hash == api_key_hash,
+            Tenant.enabled.is_(True),
         )
-    return x_api_key
+    )
+    if result.scalar_one_or_none() is not None:
+        return "tenant"
+
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Invalid or missing API key",
+    )
