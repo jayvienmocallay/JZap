@@ -17,6 +17,7 @@ class RuleType(str, enum.Enum):
     """Allowed rule types."""
 
     rate_limit = "rate_limit"
+    threshold = "threshold"
     block = "block"
     challenge = "challenge"
     allow = "allow"
@@ -26,6 +27,9 @@ class TargetType(str, enum.Enum):
     """What the rule matches against."""
 
     ip = "ip"
+    cidr = "cidr"
+    asn = "asn"
+    country = "country"
     path = "path"
     header = "header"
     user_agent = "user_agent"
